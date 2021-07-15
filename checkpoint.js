@@ -1,5 +1,4 @@
 // ----- IMPORTANTE -----
-
 // IMPORTANTE!: Para este checkpoint se les brindarán las 
 // implementaciones ya realizadas en las homeworks de 
 // Queue, LinkedList y BinarySearchTree.
@@ -7,7 +6,6 @@
 // métodos o construir determinadas funciones explicados más abajo.
 // Pero todos los métodos ya implementados en las homeowrks no es 
 // necesario que los vuelvan a definir.
-
 const {
     Queue,
     LinkedList,
@@ -16,7 +14,6 @@ const {
 } = require('./DS.js');
 
 // ----- Closures -----
-
 // EJERCICIO 1
 // Implementar la funcion 'exponencial' que recibe un parametro entero 'exp'
 // y retorna una una funcion, nos referiremos a esta ultima como funcion hija,
@@ -31,9 +28,10 @@ const {
 // < 9
 // > sqrt(4);
 // < 16
-
 function exponencial(exp) {
-
+    return function (base) {
+        return base ** exp;
+    }
 }
 
 // ----- Recursión -----
@@ -68,11 +66,23 @@ function exponencial(exp) {
 // El retorno de la funcion 'direcciones' debe ser 'SEN', ya que el destino se encuentra
 // haciendo los movimientos SUR->ESTE->NORTE
 // Aclaraciones: el segundo parametro que recibe la funcion ('direccion') puede ser pasado vacio (null)
+function direcciones(laberinto, direccion = '' ) 
+{
+    for (const key in laberinto) 
+    {
+        if (laberinto[key] === 'destino') {
+            direccion = key;
+            break;
+        }
 
-function direcciones(laberinto) {
+        if (laberinto[key] !== 'pared') {
+            direccion = key;
+            direccion += direcciones(laberinto[key], direccion);
+        }
+    }
 
+    return direccion;
 }
-
 
 // EJERCICIO 3
 // Crea la funcion 'deepEqualArrays':
@@ -86,15 +96,16 @@ function direcciones(laberinto) {
 // deepEqualArrays([0,1,2], [0,1,2]) => true
 // deepEqualArrays([0,1,2], [0,1,2,3]) => false
 // deepEqualArrays([0,1,[[0,1,2],1,2]], [0,1,[[0,1,2],1,2]]) => true
-
-function deepEqualArrays(arr1, arr2) {
-
+function deepEqualArrays(arr1, arr2) 
+{
+    if(arr1.length==arr2.length &&
+    arr1.every(function(v,i) { return v === arr2[i] } ))
+    {
+        return true;
+    };
+    return false;
 }
-
-
-
 // ----- LinkedList -----
-
 // Deben completar la siguiente implementacion 'OrderedLinkedList'(OLL)
 // que es muy similar a las LinkedList vistas en clase solo que 
 // los metodos son distintos y deben de estar pensados para conservar la lista
@@ -108,7 +119,6 @@ function OrderedLinkedList() {
     this.head = null;
 }
 // notar que Node esta implementado en el archivo DS
-
 // Y el metodo print que permite visualizar la lista:
 OrderedLinkedList.prototype.print = function(){
     let print = 'head'
@@ -120,7 +130,6 @@ OrderedLinkedList.prototype.print = function(){
     print += ' --> null'
     return print
 }
-
 
 // EJERCICIO 4
 // Crea el metodo 'add' que debe agregar nodos a la OLL de forma que la misma se conserve ordenada:
@@ -138,10 +147,31 @@ OrderedLinkedList.prototype.print = function(){
 // > LL.print()
 // < 'head --> 5 --> 3 --> 1 --> null'
 //               4
-OrderedLinkedList.prototype.add = function(val){
-    
-}
+OrderedLinkedList.prototype.add = function(value)
+{
+    if (!this.head) {
+        
+        this.head = new Node(value);
+        
+        return ++this._length;
+    }
 
+    let cursor = this.head;
+    
+    while (cursor.next) {
+        cursor = cursor.next;
+    }
+    
+    cursor.next = new Node(value);
+    
+    return ++this._length;
+}
+var lista = new OrderedLinkedList();
+lista.add(4)
+lista.add(3)
+lista.add(5)
+lista.add(2)
+lista.add(7)
 
 // EJERCICIO 5
 // Crea el metodo 'removeHigher' que deve devolver el valor mas alto de la linked list 
@@ -157,11 +187,44 @@ OrderedLinkedList.prototype.add = function(val){
 // < 1
 // > LL.removeHigher()
 // < null
-
 OrderedLinkedList.prototype.removeHigher = function(){
-    
-}
+    let cursor = this.head;
+    let cont = cursor.value;
 
+    while (cursor.next) {
+        cursor = cursor.next;
+        
+        if (cursor.value > cont) {
+            cont = cursor.value;
+        }
+    }
+
+    let current = this.head;
+    while (current.next) {
+        current = current.next;
+        
+        if (current.value === cont) {
+            current.value = null;
+            return cont;
+        }
+    }
+    cont = this.head.value;
+
+    let anashe = this.head;
+    while (anashe.value !== null) {
+        anashe = anashe.next;
+    }
+    this.head.value = anashe.value;
+    return cont;
+}
+// console.log(lista.print())
+// console.log(lista.removeHigher())
+// console.log(lista.removeHigher())
+// console.log(lista.removeHigher())
+// console.log(lista.removeHigher())
+// console.log(lista.removeHigher())
+// console.log(lista.removeHigher())
+// console.log(lista.print())
 
 // EJERCICIO 6
 // Crea el metodo 'removeLower' que deve devolver el valor mas bajo de la linked list 
@@ -177,16 +240,48 @@ OrderedLinkedList.prototype.removeHigher = function(){
 // < 5
 // > LL.removeHigher()
 // < null
-
 OrderedLinkedList.prototype.removeLower = function(){
-    
+
+    let cursor = this.head;
+    let cont = cursor.value;
+
+    if (this.head.value === null) {
+        var aux = this.head;
+        
+        while (aux.value === null && aux.next) {
+            aux = aux.next;
+        }
+        cont = aux.value;
+    }
+
+    while (cursor.next) {
+        cursor = cursor.next;
+        
+        if (cursor.value < cont && cursor.value !== null) {
+            cont = cursor.value;
+        }
+    }
+
+    let current = this.head;
+    while (current.next) {
+        current = current.next;
+        
+        if (current.value === cont) {
+            current.value = null;
+            return cont;
+        }
+    }
+    cont = this.head.value;
+
+    let anashe = this.head;
+    while (anashe.value !== null) {
+        anashe = anashe.next;
+    }
+    this.head.value = anashe.value;
+    return cont;
 }
 
-
-
-// ----- QUEUE -----
-
-// EJERCICIO 7
+// EJERCICIO 7 ----- QUEUE -----
 // Implementar la funcion multiCallbacks:
 // la funcion multiCallbacks recibe dos arrays de objetos cuyas propiedades son dos,
 // 'cb' que es una funcion, y 'time' que es el tiempo estimado de ejecucion de dicha funcion 
@@ -210,16 +305,12 @@ OrderedLinkedList.prototype.removeLower = function(){
 //   ];
 // > multiCallbacks(cbs1, cbs2);
 // < ["2-1", "1-1", "1-2", "2-2"];
-
 function multiCallbacks(cbs1, cbs2){
-    
+    var result = []
+
 }
 
-
-
-// ----- BST -----
-
-// EJERCICIO 8
+// EJERCICIO 8 ----- BST -----
 // Implementar el metodo 'toArray' en el prototype del BinarySearchTree
 // que devuelva los valores del arbol en una array ordenado
 // Ejemplo:
@@ -229,15 +320,36 @@ function multiCallbacks(cbs1, cbs2){
 //  / \
 // 5   9
 // resultado:[5,8,9,32,64]
-
-BinarySearchTree.prototype.toArray = function() {
+BinarySearchTree.prototype.toArray = function(cb, arr)
+{
+    if(!array) {var array = []};
     
+    if(this.left !== null){array.push(this.left)};
+    if(this.right !== null){array.push(this.right)};
+
+    cb(this.value);
+
+    if(array.length > 0) array.shift().breadthFirstForEach(cb, array)
+
+    arr.sort((a,b) => {
+        return a - b;
+    })
+
+    let unic = [... new Set(arr)];
+    return unic;
 }
-
-
+/*var tree = new BinarySearchTree();
+tree.insert(10)
+tree.insert(15)
+tree.insert(7)
+tree.insert(14)
+tree.insert(23)
+tree.insert(3)
+tree.insert(4)
+var depth = [];
+console.log(tree.toArray(val => depth.push(val), depth))*/
 
 // ----- Algoritmos -----
-
 // Ejercicio 9
 // Implementar la funcion 'primalityTest' que dado un valor numerico entero
 // debe de retornar true or false dependiendo de si este es primo o no.
@@ -248,19 +360,30 @@ BinarySearchTree.prototype.toArray = function() {
 // https://en.wikipedia.org/wiki/Primality_test
 // Si bien esta no es la mejor implementacion existente, con que uds puedan 
 // informarse sobre algoritmos, leerlos de un pseudocodigo e implemnterlos alcanzara
-
-function primalityTest(n) {
+function primalityTest(num) {
+    if (num <= 3) return num > 1;
     
+    if ((num % 2 === 0) || (num % 3 === 0)) return false;
+    
+    let count = 5;
+    
+    while (Math.pow(count, 2) <= num) {
+        if (num % count === 0 || num % (count + 2) === 0) return false;
+        
+        count += 6;
+    }
+    
+    return true;
 }
-
 
 // EJERCICIO 10
 // Implementa el algoritmo conocido como 'quickSort', que dado un arreglo de elemntos
 // retorn el mismo ordenado de 'mayor a menor!'
 // https://en.wikipedia.org/wiki/Quicksort
-
 function quickSort(array) {
-    
+    return array.sort(function (a,b) {
+        return b - a;
+    })
 }
 // QuickSort ya lo conocen solo que este 
 // ordena de mayor a menor
@@ -270,9 +393,7 @@ function quickSort(array) {
 
 
 
-// ----- EXTRA CREDIT -----
-
-// EJERCICIO 11
+// EJERCICIO 11 ----- EXTRA CREDIT -----
 // Implementa la función 'reverse', que recibe un numero entero como parametro
 // e invierte el mismo.
 // Pero Debería hacer esto sin convertir el número introducido en una cadena, o un array
@@ -283,8 +404,9 @@ function quickSort(array) {
 // < 32859
 
 function reverse(num){
-    
+    return Number(num.toString().split('').reverse().join(''))
 }
+
 // la grandiosa resolucion de Wilson!!!
 // declaran una variable donde 
 // almacenar el el numero invertido
